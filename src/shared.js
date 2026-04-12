@@ -2,13 +2,10 @@ export const STORAGE_KEY_PROFILES = "ghActionsTreeProfiles";
 export const GLOBAL_KEY           = "__global__";
 
 export const DEFAULT_RULES = [
-  { type: "keyword",   pattern: "TALIAS",     label: "", parent: "" },
   { type: "keyword",   pattern: "Dependabot", label: "", parent: "" },
   { type: "keyword",   pattern: "Copilot",    label: "", parent: "" },
   { type: "keyword",   pattern: "CodeQL",     label: "", parent: "" },
   { type: "keyword",   pattern: "Deploy",     label: "", parent: "" },
-  { type: "keyword",   pattern: "GGP",        label: "", parent: "" },
-  { type: "keyword",   pattern: "ggp",        label: "", parent: "" },
   { type: "keyword",   pattern: "Terraform",  label: "", parent: "" },
   { type: "keyword",   pattern: "Docker",     label: "", parent: "" },
   { type: "keyword",   pattern: "Security",   label: "", parent: "" },

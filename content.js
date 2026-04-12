@@ -3,13 +3,10 @@
   var STORAGE_KEY_PROFILES = "ghActionsTreeProfiles";
   var GLOBAL_KEY = "__global__";
   var DEFAULT_RULES = [
-    { type: "keyword", pattern: "TALIAS", label: "", parent: "" },
     { type: "keyword", pattern: "Dependabot", label: "", parent: "" },
     { type: "keyword", pattern: "Copilot", label: "", parent: "" },
     { type: "keyword", pattern: "CodeQL", label: "", parent: "" },
     { type: "keyword", pattern: "Deploy", label: "", parent: "" },
-    { type: "keyword", pattern: "GGP", label: "", parent: "" },
-    { type: "keyword", pattern: "ggp", label: "", parent: "" },
     { type: "keyword", pattern: "Terraform", label: "", parent: "" },
     { type: "keyword", pattern: "Docker", label: "", parent: "" },
     { type: "keyword", pattern: "Security", label: "", parent: "" },

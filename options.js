@@ -3,13 +3,10 @@
   var STORAGE_KEY_PROFILES = "ghActionsTreeProfiles";
   var GLOBAL_KEY = "__global__";
   var DEFAULT_RULES = [
-    { type: "keyword", pattern: "TALIAS", label: "", parent: "" },
     { type: "keyword", pattern: "Dependabot", label: "", parent: "" },
     { type: "keyword", pattern: "Copilot", label: "", parent: "" },
     { type: "keyword", pattern: "CodeQL", label: "", parent: "" },
     { type: "keyword", pattern: "Deploy", label: "", parent: "" },
-    { type: "keyword", pattern: "GGP", label: "", parent: "" },
-    { type: "keyword", pattern: "ggp", label: "", parent: "" },
     { type: "keyword", pattern: "Terraform", label: "", parent: "" },
     { type: "keyword", pattern: "Docker", label: "", parent: "" },
     { type: "keyword", pattern: "Security", label: "", parent: "" },
@@ -143,9 +140,11 @@ It will fall back to Global rules.`)) return;
     } else if (allProfiles[key]) {
       rules = allProfiles[key].rules.map((r) => ({ ...r }));
     } else {
-      rules = null;
+      rules = globalRules().map((r) => ({ ...r }));
+      allProfiles[key] = { rules: rules.map((r) => ({ ...r })) };
+      dirty = true;
     }
-    dirty = false;
+    if (key !== GLOBAL_KEY && dirty === false) dirty = false;
     renderAll();
   }
   function renderAll() {
@@ -172,28 +171,18 @@ It will fall back to Global rules.`)) return;
     } else {
       heading.innerHTML = profileDisplayHTML(currentKey);
       inheritCtrl.style.display = "flex";
-      if (isInheriting()) {
-        inheritBadge.style.display = "";
-        customizeBtn.style.display = "";
-        resetBtn.style.display = "none";
-        rulesCard.classList.add("card--disabled");
-        addRow.style.display = "none";
-        footer.style.display = "none";
-        rules = globalRules().map((r) => ({ ...r }));
-      } else {
-        inheritBadge.style.display = "none";
-        customizeBtn.style.display = "none";
-        resetBtn.style.display = "";
-        rulesCard.classList.remove("card--disabled");
-        addRow.style.display = "";
-        footer.style.display = "";
-      }
+      inheritBadge.style.display = "none";
+      customizeBtn.style.display = "none";
+      resetBtn.style.display = "";
+      rulesCard.classList.remove("card--disabled");
+      addRow.style.display = "";
+      footer.style.display = "";
     }
   }
   var dragIndex = null;
   function renderRules() {
     const list = document.getElementById("rules-list");
-    const disabled = isInheriting();
+    const disabled = false;
     list.innerHTML = "";
     if (!rules || rules.length === 0) {
       list.innerHTML = `<div class="empty-state">No rules \u2014 Add one below.</div>`;
@@ -454,8 +443,14 @@ It will fall back to Global rules.`)) return;
     if (!key || !key.includes("/")) return;
     if (dirty) saveCurrentRules(false);
     currentKey = key;
-    rules = allProfiles[key] ? allProfiles[key].rules.map((r) => ({ ...r })) : null;
-    dirty = false;
+    if (allProfiles[key]) {
+      rules = allProfiles[key].rules.map((r) => ({ ...r }));
+      dirty = false;
+    } else {
+      rules = globalRules().map((r) => ({ ...r }));
+      allProfiles[key] = { rules: rules.map((r) => ({ ...r })) };
+      dirty = true;
+    }
     renderAll();
   }
   function promptAddProfile(prefill = "") {
@@ -469,8 +464,14 @@ It will fall back to Global rules.`)) return;
     if (currentKey !== key) {
       if (dirty) saveCurrentRules(false);
       currentKey = key;
-      rules = null;
-      dirty = false;
+      if (allProfiles[key]) {
+        rules = allProfiles[key].rules.map((r) => ({ ...r }));
+        dirty = false;
+      } else {
+        rules = globalRules().map((r) => ({ ...r }));
+        allProfiles[key] = { rules: rules.map((r) => ({ ...r })) };
+        dirty = true;
+      }
       renderAll();
     }
   }

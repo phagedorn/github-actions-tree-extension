@@ -83,9 +83,12 @@ function switchProfile(key) {
   } else if (allProfiles[key]) {
     rules = allProfiles[key].rules.map(r => ({ ...r }));
   } else {
-    rules = null; // inheriting
+    // Auto-customize: copy global rules so the profile is immediately editable
+    rules = globalRules().map(r => ({ ...r }));
+    allProfiles[key] = { rules: rules.map(r => ({ ...r })) };
+    dirty = true;
   }
-  dirty = false;
+  if (key !== GLOBAL_KEY && dirty === false) dirty = false;
   renderAll();
 }
 
@@ -115,23 +118,12 @@ function renderProfileHeader() {
   } else {
     heading.innerHTML = profileDisplayHTML(currentKey);
     inheritCtrl.style.display = "flex";
-    if (isInheriting()) {
-      inheritBadge.style.display = "";
-      customizeBtn.style.display = "";
-      resetBtn.style.display     = "none";
-      rulesCard.classList.add("card--disabled");
-      addRow.style.display  = "none";
-      footer.style.display  = "none";
-      // Show read-only global rules as preview
-      rules = globalRules().map(r => ({ ...r }));
-    } else {
-      inheritBadge.style.display = "none";
-      customizeBtn.style.display = "none";
-      resetBtn.style.display     = "";
-      rulesCard.classList.remove("card--disabled");
-      addRow.style.display  = "";
-      footer.style.display  = "";
-    }
+    inheritBadge.style.display = "none";
+    customizeBtn.style.display = "none";
+    resetBtn.style.display     = "";
+    rulesCard.classList.remove("card--disabled");
+    addRow.style.display  = "";
+    footer.style.display  = "";
   }
 }
 
@@ -140,7 +132,7 @@ let dragIndex = null;
 
 function renderRules() {
   const list     = document.getElementById("rules-list");
-  const disabled = isInheriting();
+  const disabled = false;
   list.innerHTML = "";
 
   if (!rules || rules.length === 0) {
@@ -428,8 +420,15 @@ function addProfileDirect(key) {
   if (!key || !key.includes("/")) return;
   if (dirty) saveCurrentRules(false);
   currentKey = key;
-  rules = allProfiles[key] ? allProfiles[key].rules.map(r => ({ ...r })) : null;
-  dirty = false;
+  if (allProfiles[key]) {
+    rules = allProfiles[key].rules.map(r => ({ ...r }));
+    dirty = false;
+  } else {
+    // Auto-customize: copy global rules
+    rules = globalRules().map(r => ({ ...r }));
+    allProfiles[key] = { rules: rules.map(r => ({ ...r })) };
+    dirty = true;
+  }
   renderAll();
 }
 
@@ -440,10 +439,15 @@ function promptAddProfile(prefill = "") {
   if (!key.includes("/")) { alert("Invalid format — use: owner/repo"); return; }
   if (currentKey !== key) {
     if (dirty) saveCurrentRules(false);
-    // Profile doesn't need to exist yet — null = inheriting
     currentKey = key;
-    rules = null;
-    dirty = false;
+    if (allProfiles[key]) {
+      rules = allProfiles[key].rules.map(r => ({ ...r }));
+      dirty = false;
+    } else {
+      rules = globalRules().map(r => ({ ...r }));
+      allProfiles[key] = { rules: rules.map(r => ({ ...r })) };
+      dirty = true;
+    }
     renderAll();
   }
 }
