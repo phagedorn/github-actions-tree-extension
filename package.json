@@ -4,13 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build":      "node build.mjs",
-    "watch":      "node build.mjs --watch",
-    "test":       "vitest run",
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "test": "vitest run",
     "test:watch": "vitest"
   },
   "devDependencies": {
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.28.0",
     "vitest": "^4.1.4"
   }
 }
