@@ -1,5 +1,7 @@
 # GitHub Actions Workflow Tree
 
+![GitHub Actions sidebar grouped into a collapsible tree](docs/images/actions-folder.png)
+
 This Chrome extension turns the flat workflow list in the GitHub Actions left sidebar into a collapsible tree.
 
 ## How it works
