@@ -1,0 +1,8 @@
+name: "Security: Dependency Scan"
+on:
+  workflow_dispatch:
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Scanning dependencies"

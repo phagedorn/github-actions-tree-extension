@@ -1,0 +1,8 @@
+name: "Security: CodeQL"
+on:
+  workflow_dispatch:
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running CodeQL analysis"
