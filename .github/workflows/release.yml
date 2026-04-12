@@ -41,6 +41,13 @@ jobs:
             docs/
           echo "ZIP_NAME=github-actions-tree-extension-v${VERSION}.zip" >> "$GITHUB_ENV"
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ZIP_NAME }}
+          path: ${{ env.ZIP_NAME }}
+          retention-days: 90
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
