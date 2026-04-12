@@ -42,7 +42,7 @@ jobs:
           echo "ZIP_NAME=github-actions-tree-extension-v${VERSION}.zip" >> "$GITHUB_ENV"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.ZIP_NAME }}
           path: ${{ env.ZIP_NAME }}
