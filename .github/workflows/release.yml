@@ -1,0 +1,90 @@
+name: Release & Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to create the GitHub Release
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Package ZIP
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          zip -r "github-actions-tree-extension-v${VERSION}.zip" \
+            manifest.json \
+            content.js \
+            options.js \
+            options.html \
+            styles.css \
+            icons/ \
+            docs/
+          echo "ZIP_NAME=github-actions-tree-extension-v${VERSION}.zip" >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP_NAME }}
+          generate_release_notes: true
+
+      - name: Upload to Chrome Web Store
+        run: |
+          # Exchange refresh token for access token
+          ACCESS_TOKEN=$(curl -s -X POST https://oauth2.googleapis.com/token \
+            -d "client_id=${{ secrets.CWS_CLIENT_ID }}" \
+            -d "client_secret=${{ secrets.CWS_CLIENT_SECRET }}" \
+            -d "refresh_token=${{ secrets.CWS_REFRESH_TOKEN }}" \
+            -d "grant_type=refresh_token" \
+            | jq -r '.access_token')
+
+          # Upload the new package
+          UPLOAD_RESPONSE=$(curl -s \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            -H "x-goog-api-version: 2" \
+            -X PUT \
+            -T "$ZIP_NAME" \
+            "https://www.googleapis.com/upload/chromewebstore/v1.1/items/${{ secrets.CWS_ITEM_ID }}")
+
+          echo "Upload response: $UPLOAD_RESPONSE"
+
+          UPLOAD_STATE=$(echo "$UPLOAD_RESPONSE" | jq -r '.uploadState')
+          if [[ "$UPLOAD_STATE" != "SUCCESS" ]]; then
+            echo "Upload failed"
+            exit 1
+          fi
+
+          # Publish to all users
+          PUBLISH_RESPONSE=$(curl -s \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            -H "x-goog-api-version: 2" \
+            -H "Content-Length: 0" \
+            -X POST \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/${{ secrets.CWS_ITEM_ID }}/publish")
+
+          echo "Publish response: $PUBLISH_RESPONSE"
+
+          STATUS=$(echo "$PUBLISH_RESPONSE" | jq -r '.status[]? // empty')
+          if echo "$STATUS" | grep -qi "error"; then
+            echo "Publish failed"
+            exit 1
+          fi
