@@ -1,4 +1,4 @@
-# GitHub Actions Workflow Tree
+# GitHub Actions Workflow Tree Chrome Extension
 
 ![GitHub Actions sidebar grouped into a collapsible tree](docs/images/actions-folder.png)
 
